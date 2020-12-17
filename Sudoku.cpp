@@ -1,36 +1,20 @@
-﻿#include <iostream>
+#include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
+#define N 9
 
 
 
-
-/*
-    TODO:
-    
-
-    - gui 
-
-    - control 
-
-*/
 using namespace std;
-
+bool gameover = true;
 const char guiText[][32] = {
     "            Sudoku             ",
     "            ======             ",
-    "                               ",
-    "                               ",
-    "         1 - 9 : set number    ",
-    "             0 : remove number ",
-    "             Q : exit          ",
-    "             S : show solution ",
-    "             R : restart game  "
+    "       by Wowk Alexandr        ",
+    "            ======             "
 };
 
-#define N 9
-int wherNum=0;
-int Grow, Gcol, Gnum;
-int grid[N][N] = {
+const int grid[9][9] = {
    {3, 0, 6, 5, 0, 8, 4, 0, 0},
    {5, 2, 0, 0, 0, 0, 0, 0, 0},
    {0, 8, 7, 0, 0, 0, 0, 3, 1},
@@ -41,57 +25,86 @@ int grid[N][N] = {
    {0, 0, 0, 0, 0, 0, 0, 7, 4},
    {0, 0, 5, 2, 0, 6, 3, 0, 0}
 };
-int tmp_grid[N][N];
+int slv_grid[N][N];
 
-bool isPresentInRow(int row, int num)
+void fillSlv()
 {
-    bool b = false;
-    for (int col = 0; col < N; col++)
-        if (grid[row][col] == num) b= true;
-    if(b == true) wherNum += 1;
-    return b; 
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
+            slv_grid[i][j] = grid[i][j];
+        }
+    }
 }
 
-bool isPresentInCol(int col, int num)
+bool isOverLayed(int row, int col, int val)
 {
-    bool b = false;
-    for (int row = 0; row < N; row++)
-        if (grid[row][col] == num) b= true; 
-    if (b == true)wherNum += 2;
-    return b;
+    if (val != 0) 
+    {
+        if (grid[row][col] != val)
+        {    
+            return false;
+        }
+        else return true;
+    }
+    else return false;
 }
 
-bool isPresentInBox(int boxStartRow, int boxStartCol, int num)
+int isPresentInRow(int row, int num)
 {
-    bool b = false;
-    for (int row = 0; row < 3; row++)
-        for (int col = 0; col < 3; col++)
-            if (grid[row + boxStartRow][col + boxStartCol] == num)
-                b =  true; 
-    if (b == true)wherNum += 4;
-    return b;
+    
+    for (int col = 0; col < 9; col++) {
+        if (slv_grid[row][col] == num) return 1;
+    }
+    
+    return 0;
 }
 
-bool finEmptyPlace(int& row, int& col)
+int isPresentInCol(int col, int num)
+{
+    
+    for (int row = 0; row < N; row++) {
+        if (slv_grid[row][col] == num) return 2;
+    }
+    
+    return 0;
+}
+
+int isPresentInBox(int boxStartRow, int boxStartCol, int num)
+{
+    
+    for (int row = 0; row < 3; row++) 
+    {
+        for (int col = 0; col < 3; col++) 
+        {
+            if (slv_grid[row + boxStartRow][col + boxStartCol] == num)
+                return 4;
+        }
+    }
+    
+    return 0;
+}
+
+bool findEmptyPlace(int& row, int& col)
 {
     for (row = 0; row < N; row++)
     {
         for (col = 0; col < N; col++)
-            if (grid[row][col] == 0) return true;
+            if (slv_grid[row][col] == 0) return true;
     }
 }
 
-bool isValidPlace(int row, int col, int num) {
-    wherNum = 0;
+int isValidPlace(int row, int col, int num) {
     
-    if (num == -1) { return false; }
-    //when item not found in col, row and current 3x3 box
-    else return !isPresentInRow(row, num) && !isPresentInCol(col, num) && !isPresentInBox(row - row % 3, col - col % 3, num);
+    if (num == -1) { return 0;}
+
+    else return isPresentInRow(row, num) + isPresentInCol(col, num) + isPresentInBox(row - row % 3, col - col % 3, num);
 }
 
 bool isSolved()
 {
-    for (int i = 0; i < N; i++)
+    for (int i = 0; i < N; i++) 
     {
         for (int j = 0; j < N; j++)
         {
@@ -99,15 +112,18 @@ bool isSolved()
                 return false;
         }
     }
+
     return true;
 }
 
-void sudokuGrid() { //print the sudoku grid after solve
-    for (int row = 0; row < N; row++) {
-        for (int col = 0; col < N; col++) {
+void sudokuGrid() {
+    for (int row = 0; row < N; row++) 
+    {
+        for (int col = 0; col < N; col++) 
+        {
             if (col == 3 || col == 6)
                 cout << " | ";
-            cout << grid[row][col] << " ";
+            cout << slv_grid[row][col] << " ";
         }
         if (row == 2 || row == 5) {
             cout << endl;
@@ -118,98 +134,71 @@ void sudokuGrid() { //print the sudoku grid after solve
     }
 }
 
-void charCheck(char c) 
-{       
-        
-    if(c>=49 && c<= 57)
-    {
-        
-        scanf_s("%d ", &Gcol);
-        scanf_s("%d", &Gnum);printf("%d",c);
-        Grow = c - 48;
-    }
-    switch (c)
-    {
 
-    default:
-        break;
-    }
-}
-
-
-void guiBottom() 
-{
-    char c=0;
-
-    //1 
-    if (wherNum == 0)
- {
-        printf("Enter num of row, column and number to put: ");
-        scanf_s("%c ", &c);
-        charCheck(c);
-
-       --Grow;
-        --Gcol;
- }
-    //2    
- else {
-        cout << "The number is already in: ";
-        if (wherNum & 0b001) cout << "row ";
-        if (wherNum & 0b010) cout << "column ";
-        if (wherNum & 0b100) cout << "box";
-        wherNum = 0;
-        Grow = Gcol = 0;
-        Gnum = -1;
-        system("pause");
-        
-    }
-
-
-
-
-   
- }
 
 void Game()
 {
-    //solveSudoku();
-    for (int line = 0; line < 9; line++) {
-        puts(guiText[line]);
-    }
-    system("pause"); 
-    wherNum = 0;
-    while (true) 
-    {  // kmp
+    int valout=0;
+    int row=0, column=0, value=-1;
+    char c;
+idk:
+    system("cls");
+
+    sudokuGrid();
+    cout << "\n\n Use q to quit game \n Use s to show solution(WIP, it's not working) \n Use 0 to erase number in place\n Use e to enter number\n";
+    cout << " Enter char of action: ";
+    cin >> c;
+
+    if (c == 'q')gameover = true;
+    else if (c == 's') goto idk;
+	else if(c=='e'){
+	
+	system("cls");
+    sudokuGrid();
+    cout << "Enter row: ";
+	cin>>row;
+    cout << "Enter column: ";
+	cin>>column;
+    cout << "Enter value: ";
+	cin>>value;
+
+    
+    valout = isValidPlace(row-1, column-1, value);
+
+
+    if (valout != 0 && !isOverLayed(row-1, column-1, value))
+    {
         system("cls");
+
         sudokuGrid();
-        guiBottom();
+        cout << "The number is already in: ";
+        if (valout & 0b001) cout << "row ";
+        if (valout & 0b010) cout << "column ";
+        if (valout & 0b100) cout << "box";
         
-        if(isValidPlace(Grow, Gcol, Gnum))grid[Grow][Gcol]=Gnum;
-        if (isSolved()) break;
     }
+    else 
+    {
+        slv_grid[row-1][column-1] = value;
+    }
+	system("pause");
+	}
 }
 
 int main() {
-    wherNum = 0;
-    Game();
-}
-/*
-bool solveSudoku()
-{
-    int row, col;
-
-    if (!finEmptyPlace(row, col))
-        return true;
-
-    for (int num = 1; num <= 9; num++)
-    {
-        if (isValidPlace(row, col, num))
-        {
-            tmp_grid[row][col] = num;
-            if (solveSudoku())
-                return true;
-            tmp_grid[row][col] = 0;
-        }
+    fillSlv();
+	gameover = false;
+    
+    for (int line = 0; line < 9; line++) {
+        puts(guiText[line]);
     }
-    return false;
-}*/
+    system("pause");
+
+    while (!isSolved() && !gameover)
+    {
+        Game();
+    }
+    if (isSolved()) cout << "Congratulations! You solved sudoku!";
+    system("pause");
+    return 0;
+}
