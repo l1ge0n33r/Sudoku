@@ -6,7 +6,7 @@
 
 
 using namespace std;
-bool gameover = true;
+bool gameover;
 const char guiText[][32] = {
     "            Sudoku             ",
     "            ======             ",
