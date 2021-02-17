@@ -141,7 +141,6 @@ void Game()
     int valout = 0;
     int row = 0, column = 0, value = -1;
     char c;
-idk:
     system("cls");
 
     sudokuGrid();
@@ -150,7 +149,6 @@ idk:
     cin >> c;
 
     if (c == 'q')gameover = true;
-    else if (c == 's') goto idk;
     else if (c == '0') 
     {
         system("cls");
